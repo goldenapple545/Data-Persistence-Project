@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class MainManager : MonoBehaviour
 {
@@ -12,16 +14,24 @@ public class MainManager : MonoBehaviour
 
     public Text ScoreText;
     public GameObject GameOverText;
+    public Text BestScore;
     
     private bool m_Started = false;
     private int m_Points;
+    private string m_Name;
     
     private bool m_GameOver = false;
 
-    
+    private void Awake()
+    {
+        m_Name = SaveData.instance.nickName;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        BestScoreText();
+        
         const float step = 0.6f;
         int perLine = Mathf.FloorToInt(4.0f / step);
         
@@ -68,9 +78,31 @@ public class MainManager : MonoBehaviour
         ScoreText.text = $"Score : {m_Points}";
     }
 
+    void BestScoreText()
+    {
+        if (SaveData.instance.bestNickName == "")
+        {
+            BestScore.text = $"Best Score : {SaveData.instance.nickName} : {SaveData.instance.score}";
+        }
+        else
+        {
+            BestScore.text = $"Best Score : {SaveData.instance.bestNickName} : {SaveData.instance.bestScore}";
+        }
+    }
+
+    void BestScoreUpdate()
+    {
+        if (SaveData.instance.bestScore < m_Points)
+        {
+            SaveData.instance.bestScore = m_Points;
+            SaveData.instance.bestNickName = m_Name;
+        }
+    }
+
     public void GameOver()
     {
         m_GameOver = true;
         GameOverText.SetActive(true);
+        BestScoreUpdate();
     }
 }
